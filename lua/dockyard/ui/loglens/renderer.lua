@@ -95,11 +95,25 @@ local function to_rows(entries, raw, filter)
 			if raw then
 				row = { raw = tostring(entry.raw or "") }
 			elseif type(entry.data) == "table" then
-				row = entry.data
+				-- Create a copy so we don't mutate the core background log stream state
+				row = {}
+				for k, v in pairs(entry.data) do
+					row[k] = v
+				end
 			end
-			if row and row_matches(row) then
-				table.insert(rows, row)
-				row_to_entry[row] = entry
+
+			if row then
+				-- GLOBAL CLEANUP: Strip ANSI escape codes and carriage returns from all columns
+				for k, v in pairs(row) do
+					if type(v) == "string" then
+						row[k] = v:gsub("\x1b%[[0-9;%?]*%a", ""):gsub("\r", "")
+					end
+				end
+
+				if row_matches(row) then
+					table.insert(rows, row)
+					row_to_entry[row] = entry
+				end
 			end
 		end
 	end
