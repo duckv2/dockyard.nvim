@@ -7,7 +7,7 @@ local toggleterm_sessions = {}
 local float_session = nil
 
 local function build_exec_cmd(container_id, shell)
-	shell = shell or "sh"
+	shell = shell or "sh -c 'exec /bin/bash 2>/dev/null || exec /bin/sh'"
 	return string.format("docker exec -it %s %s", container_id, shell)
 end
 
