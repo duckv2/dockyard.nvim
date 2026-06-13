@@ -7,8 +7,19 @@ local toggleterm_sessions = {}
 local float_session = nil
 
 local function build_exec_cmd(container_id, shell)
-	shell = shell or "sh -c 'exec /bin/bash 2>/dev/null || exec /bin/sh'"
-	return string.format("docker exec -it %s %s", container_id, shell)
+	vim.fn.system(
+		string.format("docker exec %s test -x /bin/bash", container_id)
+	)
+
+	local shell = (vim.v.shell_error == 0)
+		and "/bin/bash"
+		or "/bin/sh"
+
+	return string.format(
+		"docker exec -it %s %s",
+		container_id,
+		shell
+	)
 end
 
 local function is_valid_win(win)
